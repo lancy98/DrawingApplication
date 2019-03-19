@@ -2,16 +2,17 @@ package com.example.drawingapplication;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+
 public class DrawView extends View implements View.OnTouchListener {
 
-    float x;
-    float y;
+    ArrayList<DrawPoint> points = new ArrayList<DrawPoint>();
+    public int strokeWidth = 40;
 
     public DrawView(Context context) {
         super(context);
@@ -37,15 +38,18 @@ public class DrawView extends View implements View.OnTouchListener {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        Paint paint = new Paint();
-        paint.setColor(Color.RED);
-        canvas.drawCircle(x, y, 40, paint);
+        for(DrawPoint drawPoint: points) {
+            drawPoint.draw(canvas);
+        }
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        x = event.getX();
-        y = event.getY();
+        float x = event.getX();
+        float y = event.getY();
+        PointF point = new PointF(x, y);
+        DrawPoint drawPoint = new DrawPoint(point, strokeWidth);
+        points.add(drawPoint);
         invalidate();
         return true;
     }
