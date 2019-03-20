@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 public class DrawView extends View implements View.OnTouchListener {
 
-    ArrayList<DrawPoint> points = new ArrayList<DrawPoint>();
+    private DrawPoints points = new DrawPoints();
     public int strokeWidth = 40;
 
     public DrawView(Context context) {
@@ -37,10 +37,7 @@ public class DrawView extends View implements View.OnTouchListener {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
-        for(DrawPoint drawPoint: points) {
-            drawPoint.draw(canvas);
-        }
+        points.draw(canvas);
     }
 
     @Override
@@ -48,9 +45,39 @@ public class DrawView extends View implements View.OnTouchListener {
         float x = event.getX();
         float y = event.getY();
         PointF point = new PointF(x, y);
-        DrawPoint drawPoint = new DrawPoint(point, strokeWidth);
-        points.add(drawPoint);
+
+        points.clearUndonePoints();
+        points.addPoint(point, strokeWidth);
+
         invalidate();
         return true;
+    }
+
+    public void brushSize(int progress) {
+        int baseValue = 20;
+        // 20 plus max 50; brush size between 20 and 70.
+        float additionalValue = 50f * (progress / 100f);
+        strokeWidth = baseValue + (int)additionalValue ;
+        invalidate();
+    }
+
+    public CAPACITY undo() {
+        CAPACITY capacity = points.undo();
+
+        if (capacity == CAPACITY.SPACE_LEFT) {
+            invalidate();
+        }
+
+        return capacity;
+    }
+
+    public boolean redo() {
+        boolean success = points.redo();
+
+        if (success) {
+            invalidate();
+        }
+
+        return success;
     }
 }

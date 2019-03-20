@@ -27,6 +27,7 @@ public class DrawPoint {
 
 class RandomColor {
     Paint paint;
+
     RandomColor() {
         paint = new Paint();
         Random random = new Random();
