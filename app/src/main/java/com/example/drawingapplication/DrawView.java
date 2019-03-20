@@ -9,29 +9,25 @@ import android.view.View;
 
 import java.util.ArrayList;
 
-public class DrawView extends View implements View.OnTouchListener {
+public class DrawView extends View {
 
     private DrawPoints points = new DrawPoints();
     public int strokeWidth = 40;
 
     public DrawView(Context context) {
         super(context);
-        setOnTouchListener(this);
     }
 
     public DrawView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setOnTouchListener(this);
     }
 
     public DrawView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setOnTouchListener(this);
     }
 
     public DrawView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        setOnTouchListener(this);
     }
 
     @Override
@@ -41,17 +37,53 @@ public class DrawView extends View implements View.OnTouchListener {
     }
 
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
-        PointF point = new PointF(x, y);
+    public boolean onTouchEvent(MotionEvent event) {
 
-        points.clearUndonePoints();
-        points.addPoint(point, strokeWidth);
+        // get pointer index from the event object
+        int pointerIndex = event.getActionIndex();
+
+        // get pointer ID
+        int pointerId = event.getPointerId(pointerIndex);
+
+        // get masked (not specific to a pointer) action
+        int maskedAction = event.getActionMasked();
+
+
+        switch (maskedAction) {
+
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN: {
+                PointF point = new PointF();
+                point.x = event.getX(pointerIndex);
+                point.y = event.getY(pointerIndex);
+                points.addPoint(point, strokeWidth);
+                break;
+            }
+            case MotionEvent.ACTION_MOVE: { // a pointer was moved
+                for (int size = event.getPointerCount(), i = 0; i < size; i++) {
+                    int pointerID = event.getPointerId(i);
+
+                    PointF point = new PointF();
+
+                    point.x = event.getX(pointerID);
+                    point.y = event.getY(pointerID);
+
+                    points.addPoint(point, strokeWidth);
+                }
+                break;
+            }
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_CANCEL: {
+                break;
+            }
+        }
 
         invalidate();
+
         return true;
     }
+
 
     public void brushSize(int progress) {
         int baseValue = 20;
