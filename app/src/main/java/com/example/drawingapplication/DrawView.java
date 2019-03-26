@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -14,6 +15,9 @@ public class DrawView extends View {
     public int strokeWidth = 40;
     public boolean colorCycle = false;
     private CustomColor customColor = new CustomColor();
+
+    private boolean longPress = false;
+    private float initialXPoint = 0f;
 
     public DrawView(Context context) {
         super(context);
@@ -62,6 +66,12 @@ public class DrawView extends View {
                 } else {
                     points.addPoint(point, strokeWidth, customColor);
                 }
+
+                if (maskedAction == MotionEvent.ACTION_DOWN) {
+                    longPress = false;
+                    initialXPoint = event.getX();
+                }
+
                 break;
             }
             case MotionEvent.ACTION_MOVE: { // a pointer was moved
@@ -79,11 +89,28 @@ public class DrawView extends View {
                         points.addPoint(point, strokeWidth, customColor);
                     }
                 }
+
+                if (event.getEventTime() - event.getDownTime() > 500 &&
+                        Math.abs(event.getX() - initialXPoint) < 5) {
+                    longPress = true;
+                }
+
                 break;
             }
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_CANCEL: {
+
+                if (!longPress &&
+                        event.getEventTime() - event.getDownTime() > 500 &&
+                        Math.abs(event.getX() - initialXPoint) < 5) {
+                    longPress = true;
+                }
+
+                if (longPress) {
+                    customColor = new CustomColor();
+                    longPress = false;
+                }
                 break;
             }
         }
