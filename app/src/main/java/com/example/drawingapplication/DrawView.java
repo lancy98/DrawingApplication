@@ -7,12 +7,13 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.ArrayList;
 
 public class DrawView extends View {
 
     private DrawPoints points = new DrawPoints();
     public int strokeWidth = 40;
+    public boolean colorCycle = false;
+    private CustomColor customColor = new CustomColor();
 
     public DrawView(Context context) {
         super(context);
@@ -39,24 +40,28 @@ public class DrawView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        // get pointer index from the event object
-        int pointerIndex = event.getActionIndex();
-
-        // get pointer ID
-        int pointerId = event.getPointerId(pointerIndex);
-
         // get masked (not specific to a pointer) action
         int maskedAction = event.getActionMasked();
-
 
         switch (maskedAction) {
 
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN: {
+                // get pointer index from the event object
+                int pointerIndex = event.getActionIndex();
+                // get pointer ID
+                int pointerId = event.getPointerId(pointerIndex);
+
                 PointF point = new PointF();
+
                 point.x = event.getX(pointerIndex);
                 point.y = event.getY(pointerIndex);
-                points.addPoint(point, strokeWidth);
+
+                if (colorCycle) {
+                    points.addPoint(point, strokeWidth);
+                } else {
+                    points.addPoint(point, strokeWidth, customColor);
+                }
                 break;
             }
             case MotionEvent.ACTION_MOVE: { // a pointer was moved
@@ -68,7 +73,11 @@ public class DrawView extends View {
                     point.x = event.getX(pointerID);
                     point.y = event.getY(pointerID);
 
-                    points.addPoint(point, strokeWidth);
+                    if (colorCycle) {
+                        points.addPoint(point, strokeWidth);
+                    } else {
+                        points.addPoint(point, strokeWidth, customColor);
+                    }
                 }
                 break;
             }

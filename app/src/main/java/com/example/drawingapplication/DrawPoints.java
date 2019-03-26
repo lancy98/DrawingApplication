@@ -48,6 +48,11 @@ public class DrawPoints {
         points.add(drawPoint);
     }
 
+    public void addPoint(PointF point, int strokeWidth, CustomColor customColor) {
+        DrawPoint drawPoint = new DrawPoint(point, strokeWidth, customColor.paint);
+        points.add(drawPoint);
+    }
+
     public void clearUndonePoints() {
         if (undonePoints.size() == 0) {
             return;

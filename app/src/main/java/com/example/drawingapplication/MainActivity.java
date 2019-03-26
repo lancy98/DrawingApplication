@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -57,6 +59,14 @@ public class MainActivity extends AppCompatActivity {
                 if (!drawView.redo()) {
                     showToast("No more items to redo");
                 }
+            }
+        });
+
+        Switch colorSwitch = findViewById(R.id.colorCycleSwitch);
+        colorSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                drawView.colorCycle = isChecked;
             }
         });
 
