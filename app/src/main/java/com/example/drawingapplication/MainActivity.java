@@ -70,6 +70,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button clearScreenButton = findViewById(R.id.clearScreenButton);
+        clearScreenButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawView.clearView();
+            }
+        });
+
     }
 
     public void showToast(CharSequence text) {

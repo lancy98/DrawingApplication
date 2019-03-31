@@ -3,4 +3,5 @@
     <string name="undo">Undo</string>
     <string name="redo">Redo</string>
     <string name="multi_color">Dynamic Color Change</string>
+    <string name="clear_screen">Clear Screen</string>
 </resources>

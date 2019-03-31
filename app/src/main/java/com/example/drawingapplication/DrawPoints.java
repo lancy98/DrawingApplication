@@ -53,12 +53,17 @@ public class DrawPoints {
         points.add(drawPoint);
     }
 
-    public void clearUndonePoints() {
-        if (undonePoints.size() == 0) {
-            return;
-        }
-
-        undonePoints.clear();
+    public void addPoints(DrawPoints inputPoints) {
+        points.addAll(inputPoints.points);
     }
 
+    public void useColorForAllPoints(CustomColor customColor) {
+        for (DrawPoint point : points) {
+            point.paint = customColor.paint;
+        }
+    }
+
+    public void clearStoredPoints() {
+        points.clear();
+    }
 }

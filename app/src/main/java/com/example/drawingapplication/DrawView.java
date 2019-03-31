@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -12,7 +11,8 @@ import android.view.View;
 public class DrawView extends View {
 
     private DrawPoints points = new DrawPoints();
-    public int strokeWidth = 40;
+    private DrawPoints temporaryPoints = new DrawPoints();
+    public int strokeWidth = 20;
     public boolean colorCycle = false;
     private CustomColor customColor = new CustomColor();
 
@@ -38,6 +38,7 @@ public class DrawView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        temporaryPoints.draw(canvas);
         points.draw(canvas);
     }
 
@@ -53,8 +54,6 @@ public class DrawView extends View {
             case MotionEvent.ACTION_POINTER_DOWN: {
                 // get pointer index from the event object
                 int pointerIndex = event.getActionIndex();
-                // get pointer ID
-                int pointerId = event.getPointerId(pointerIndex);
 
                 PointF point = new PointF();
 
@@ -62,9 +61,9 @@ public class DrawView extends View {
                 point.y = event.getY(pointerIndex);
 
                 if (colorCycle) {
-                    points.addPoint(point, strokeWidth);
+                    temporaryPoints.addPoint(point, strokeWidth);
                 } else {
-                    points.addPoint(point, strokeWidth, customColor);
+                    temporaryPoints.addPoint(point, strokeWidth, customColor);
                 }
 
                 if (maskedAction == MotionEvent.ACTION_DOWN) {
@@ -84,14 +83,15 @@ public class DrawView extends View {
                     point.y = event.getY(pointerID);
 
                     if (colorCycle) {
-                        points.addPoint(point, strokeWidth);
+                        temporaryPoints.addPoint(point, strokeWidth);
                     } else {
-                        points.addPoint(point, strokeWidth, customColor);
+                        temporaryPoints.addPoint(point, strokeWidth, customColor);
                     }
                 }
 
-                if (event.getEventTime() - event.getDownTime() > 500 &&
-                        Math.abs(event.getX() - initialXPoint) < 5) {
+                if (event.getEventTime() - event.getDownTime() > 500
+                        && Math.abs(event.getX() - initialXPoint) < 5
+                        && colorCycle == false) {
                     longPress = true;
                 }
 
@@ -101,16 +101,21 @@ public class DrawView extends View {
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_CANCEL: {
 
-                if (!longPress &&
-                        event.getEventTime() - event.getDownTime() > 500 &&
-                        Math.abs(event.getX() - initialXPoint) < 5) {
+                if (colorCycle == false
+                        && longPress == false
+                        && event.getEventTime() - event.getDownTime() > 500
+                        && Math.abs(event.getX() - initialXPoint) < 5) {
                     longPress = true;
                 }
 
                 if (longPress) {
                     customColor = new CustomColor();
+                    temporaryPoints.useColorForAllPoints(customColor);
                     longPress = false;
                 }
+
+                points.addPoints(temporaryPoints);
+                temporaryPoints.clearStoredPoints();
                 break;
             }
         }
@@ -147,5 +152,11 @@ public class DrawView extends View {
         }
 
         return success;
+    }
+
+    public void clearView() {
+        temporaryPoints.clearStoredPoints();
+        points.clearStoredPoints();
+        invalidate();
     }
 }
