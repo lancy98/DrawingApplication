@@ -13,11 +13,15 @@ public class DrawView extends View {
     private DrawPoints points = new DrawPoints();
     private DrawPoints temporaryPoints = new DrawPoints();
     public int strokeWidth = 20;
+    public int baseStrokeWidth = 20;
+    public float maxVariableBrushSize = 50f;
+    private int maxDistanceMovementForLongPress = 18;
+    private int minLongPressDurationInMS = 500;
     public boolean colorCycle = false;
+    private boolean movedLongDistance = false;
     private CustomColor customColor = new CustomColor();
 
     private boolean longPress = false;
-    private float initialXPoint = 0f;
 
     public DrawView(Context context) {
         super(context);
@@ -38,8 +42,8 @@ public class DrawView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        temporaryPoints.draw(canvas);
         points.draw(canvas);
+        temporaryPoints.draw(canvas);
     }
 
     @Override
@@ -66,11 +70,6 @@ public class DrawView extends View {
                     temporaryPoints.addPoint(point, strokeWidth, customColor);
                 }
 
-                if (maskedAction == MotionEvent.ACTION_DOWN) {
-                    longPress = false;
-                    initialXPoint = event.getX();
-                }
-
                 break;
             }
             case MotionEvent.ACTION_MOVE: { // a pointer was moved
@@ -87,12 +86,11 @@ public class DrawView extends View {
                     } else {
                         temporaryPoints.addPoint(point, strokeWidth, customColor);
                     }
-                }
 
-                if (event.getEventTime() - event.getDownTime() > 500
-                        && Math.abs(event.getX() - initialXPoint) < 5
-                        && colorCycle == false) {
-                    longPress = true;
+                    if (temporaryPoints.strokeMaxDistance() > maxDistanceMovementForLongPress) {
+                        longPress = false;
+                        movedLongDistance = true;
+                    }
                 }
 
                 break;
@@ -103,8 +101,10 @@ public class DrawView extends View {
 
                 if (colorCycle == false
                         && longPress == false
-                        && event.getEventTime() - event.getDownTime() > 500
-                        && Math.abs(event.getX() - initialXPoint) < 5) {
+                        && movedLongDistance == false
+                        && maskedAction == MotionEvent.ACTION_UP
+                        && event.getEventTime() - event.getDownTime() > minLongPressDurationInMS
+                        && temporaryPoints.strokeMaxDistance() < maxDistanceMovementForLongPress) {
                     longPress = true;
                 }
 
@@ -114,6 +114,7 @@ public class DrawView extends View {
                     longPress = false;
                 }
 
+                movedLongDistance = false;
                 points.addPoints(temporaryPoints);
                 temporaryPoints.clearStoredPoints();
                 break;
@@ -127,10 +128,8 @@ public class DrawView extends View {
 
 
     public void brushSize(int progress) {
-        int baseValue = 20;
-        // 20 plus max 50; brush size between 20 and 70.
-        float additionalValue = 50f * (progress / 100f);
-        strokeWidth = baseValue + (int)additionalValue ;
+        float additionalValue = maxVariableBrushSize * (progress / 100f);
+        strokeWidth = baseStrokeWidth + (int)additionalValue ;
         invalidate();
     }
 

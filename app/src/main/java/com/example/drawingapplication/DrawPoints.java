@@ -66,4 +66,14 @@ public class DrawPoints {
     public void clearStoredPoints() {
         points.clear();
     }
+
+    public double strokeMaxDistance() {
+        if (points.size() == 0) {
+            return 0;
+        }
+
+        DrawPoint firstPoint = points.get(0);
+        DrawPoint lastPoint = points.get(points.size() -1);
+        return firstPoint.distanceToPoint(lastPoint);
+    }
 }

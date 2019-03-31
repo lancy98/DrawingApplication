@@ -26,4 +26,9 @@ public class DrawPoint {
     public void draw(Canvas canvas) {
         canvas.drawCircle(point.x, point.y, radius, paint);
     }
+
+    public double distanceToPoint(DrawPoint inputPoint) {
+        return Math.sqrt(Math.pow(point.x - inputPoint.point.x, 2) + Math.pow(point.y - inputPoint.point.y, 2));
+    }
+
 }
