@@ -2,6 +2,9 @@
     <string name="app_name">DrawingApplication</string>
     <string name="undo">Undo</string>
     <string name="redo">Redo</string>
-    <string name="multi_color">Dynamic Color Change</string>
+    <string name="multi_color">Multi-Color</string>
     <string name="clear_screen">Clear Screen</string>
+    <string name="undo_error">Sorry! No more items to undo</string>
+    <string name="redo_error">Sorry! No more items to redo</string>
+    <string name="undo_max_possible_error">Sorry! You have already undone 10 items. This is the max number this system allows.</string>
 </resources>

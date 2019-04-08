@@ -45,9 +45,9 @@ public class MainActivity extends AppCompatActivity {
                 CAPACITY capacity = drawView.undo();
 
                 if (capacity == CAPACITY.EMPTY) {
-                    showToast("No more items to redo");
+                    showToast(getString(R.string.undo_error));
                 } else if (capacity == CAPACITY.FULL) {
-                    showToast("Already 10 items in the list");
+                    showToast(getString(R.string.undo_max_possible_error));
                 }
             }
         });
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!drawView.redo()) {
-                    showToast("No more items to redo");
+                    showToast(getString(R.string.redo_error));
                 }
             }
         });
