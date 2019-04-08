@@ -6,6 +6,7 @@ import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -28,7 +29,6 @@ public class DrawView extends View {
     private TOUCH_STATE currentTouchState;
     private int firstFingerPointerIndex;
     private Timer timer;
-    private boolean longPress = false;
 
     public DrawView(Context context) {
         super(context);
@@ -114,28 +114,33 @@ public class DrawView extends View {
                 break;
             }
             case MotionEvent.ACTION_MOVE: { // a pointer was moved
-                for (int size = event.getPointerCount(), i = 0; i < size; i++) {
+                //FIXME: "Exception was thrown: pointerIndex out of range" is thrown when event.getX and event.getY is called.
+                for (int i = 0; i < event.getPointerCount(); i++) {
                     int pointerID = event.getPointerId(i);
 
                     PointF point = new PointF();
 
-                    point.x = event.getX(pointerID);
-                    point.y = event.getY(pointerID);
+                    try {
+                        point.x = event.getX(pointerID);
+                        point.y = event.getY(pointerID);
 
-                    if (colorCycle) {
-                        temporaryPoints.addPoint(point, strokeWidth);
-                    } else {
-                        temporaryPoints.addPoint(point, strokeWidth, customColor);
-                    }
+                        if (colorCycle) {
+                            temporaryPoints.addPoint(point, strokeWidth);
+                        } else {
+                            temporaryPoints.addPoint(point, strokeWidth, customColor);
+                        }
 
-                    // Calculate the distance moved.
-                    if (temporaryPoints.strokeMaxDistance() > maxDistanceMovementForLongPress) {
-                        movedLongDistance = true;
-                    }
+                        // Calculate the distance moved.
+                        if (temporaryPoints.strokeMaxDistance() > maxDistanceMovementForLongPress) {
+                            movedLongDistance = true;
+                        }
 
-                    // changing the current state to moved.
-                    if (firstFingerPointerIndex == pointerID) {
-                        currentTouchState = TOUCH_STATE.MOVE;
+                        // changing the current state to moved.
+                        if (firstFingerPointerIndex == pointerID) {
+                            currentTouchState = TOUCH_STATE.MOVE;
+                        }
+                    } catch (Exception e) {
+                        Log.d("DrawingApplication", "Exception was thrown: " + e.getLocalizedMessage());
                     }
                 }
 
